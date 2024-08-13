@@ -8,7 +8,13 @@
 <body>
   <h1>Login or Register</h1>
   
-  <!-- Formulario de Registro -->
+  <!-- Botón para iniciar sesión con Google -->
+  <div>
+    <h2>Login with Google</h2>
+    <button id="googleLoginButton">Login with Google</button>
+  </div>
+
+  <!-- Formulario de Registro con Correo y Contraseña -->
   <div>
     <h2>Register</h2>
     <input type="email" id="registerEmail" placeholder="Email">
@@ -16,7 +22,7 @@
     <button id="registerButton">Register</button>
   </div>
 
-  <!-- Formulario de Inicio de Sesión -->
+  <!-- Formulario de Inicio de Sesión con Correo y Contraseña -->
   <div>
     <h2>Login</h2>
     <input type="email" id="loginEmail" placeholder="Email">
@@ -34,7 +40,7 @@
   <script type="module">
     // Importar funciones necesarias desde Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
     // Tu configuración de Firebase
     const firebaseConfig = {
@@ -50,8 +56,21 @@
     // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
 
-    // Función para registrar un nuevo usuario
+    // Función para iniciar sesión con Google
+    document.getElementById('googleLoginButton').addEventListener('click', () => {
+      signInWithPopup(auth, googleProvider)
+        .then((result) => {
+          alert('User logged in successfully with Google!');
+          startVideoStream();
+        })
+        .catch((error) => {
+          alert('Error: ' + error.message);
+        });
+    });
+
+    // Función para registrar un nuevo usuario con email y contraseña
     document.getElementById('registerButton').addEventListener('click', () => {
       const email = document.getElementById('registerEmail').value;
       const password = document.getElementById('registerPassword').value;
@@ -66,7 +85,7 @@
         });
     });
 
-    // Función para iniciar sesión
+    // Función para iniciar sesión con email y contraseña
     document.getElementById('loginButton').addEventListener('click', () => {
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
