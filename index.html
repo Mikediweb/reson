@@ -53,14 +53,6 @@
       background-color: #45A049;
     }
 
-    .auth-link {
-      color: #1e88e5;
-      cursor: pointer;
-      margin-top: 10px;
-      display: block;
-      font-size: 14px;
-    }
-
     #videoContainer {
       display: none;
       flex-direction: column;
@@ -90,30 +82,27 @@
     <h2>Login with Google</h2>
     <button id="googleLoginButton">Login with Google</button>
 
-    <h2>Login</h2>
-    <input type="email" id="loginEmail" placeholder="Email" required>
-    <input type="password" id="loginPassword" placeholder="Password" required>
-    <button id="loginButton">Login</button>
-    <span class="auth-link" id="showRegister">Create an account</span>
-
     <h2>Register</h2>
     <input type="email" id="registerEmail" placeholder="Email" required>
     <input type="password" id="registerPassword" placeholder="Password" required>
     <button id="registerButton">Register</button>
-    <span class="auth-link" id="showLogin">Already have an account? Log in</span>
+
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email" required>
+    <input type="password" id="loginPassword" placeholder="Password" required>
+    <button id="loginButton">Login</button>
   </div>
 
   <!-- Sección de Video -->
   <div id="videoContainer" class="container">
     <h2>Your Camera Feed</h2>
     <video id="video" autoplay></video>
-    <button id="logoutButton">Logout</button>
   </div>
 
   <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBEps1MGRev62pQ6Gzm-oGY_gbwLBW_3Yk",
@@ -129,37 +118,17 @@
     const auth = getAuth(app);
     const googleProvider = new GoogleAuthProvider();
 
-    function showLoading() {
-      document.getElementById('loading').style.display = 'block';
-    }
-
-    function hideLoading() {
-      document.getElementById('loading').style.display = 'none';
-    }
-
     function hideAuthForms() {
       document.getElementById('loginRegisterContainer').style.display = 'none';
     }
 
-    document.getElementById('showRegister').addEventListener('click', () => {
-      document.getElementById('registerContainer').style.display = 'block';
-      document.getElementById('loginContainer').style.display = 'none';
-    });
-
-    document.getElementById('showLogin').addEventListener('click', () => {
-      document.getElementById('registerContainer').style.display = 'none';
-      document.getElementById('loginContainer').style.display = 'block';
-    });
-
     document.getElementById('googleLoginButton').addEventListener('click', () => {
-      showLoading();
       signInWithPopup(auth, googleProvider)
         .then(() => {
           hideAuthForms();
           startVideoStream();
         })
         .catch((error) => {
-          hideLoading();
           alert('Error: ' + error.message);
         });
     });
@@ -173,14 +142,12 @@
         return;
       }
 
-      showLoading();
       createUserWithEmailAndPassword(auth, email, password)
         .then(() => {
           hideAuthForms();
           startVideoStream();
         })
         .catch((error) => {
-          hideLoading();
           alert('Error: ' + error.message);
         });
     });
@@ -194,20 +161,17 @@
         return;
       }
 
-      showLoading();
       signInWithEmailAndPassword(auth, email, password)
         .then(() => {
           hideAuthForms();
           startVideoStream();
         })
         .catch((error) => {
-          hideLoading();
           alert('Error: ' + error.message);
         });
     });
 
     function startVideoStream() {
-      hideLoading();
       const videoContainer = document.getElementById('videoContainer');
       videoContainer.style.display = 'block';
 
@@ -224,27 +188,6 @@
       } else {
         alert('Your browser does not support camera access.');
       }
-    }
-
-    document.getElementById('logoutButton').addEventListener('click', () => {
-      signOut(auth)
-        .then(() => {
-          alert('User logged out successfully!');
-          stopVideoStream();
-        })
-        .catch((error) => {
-          alert('Error: ' + error.message);
-        });
-    });
-
-    function stopVideoStream() {
-      const video = document.getElementById('video');
-      const stream = video.srcObject;
-      const tracks = stream.getTracks();
-
-      tracks.forEach((track) => track.stop());
-
-      videoContainer.style.display = 'none';
     }
   </script>
 </body>
