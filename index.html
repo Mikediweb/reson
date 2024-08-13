@@ -3,29 +3,103 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro e Inicio de Sesión</title>
-  <link rel="stylesheet" href="styles.css">
-   <script src="app.js"></script>
+  <title>Firebase Auth & Video</title>
 </head>
 <body>
-  <div id="auth">
-    <h2>Iniciar sesión</h2>
-    <input type="text" id="username" placeholder="Nombre de usuario">
-    <input type="password" id="password" placeholder="Contraseña">
-    <button onclick="login()">Iniciar sesión</button>
-    <button onclick="showRegisterForm()">Registrarse</button>
+  <h1>Login or Register</h1>
+  
+  <!-- Formulario de Registro -->
+  <div>
+    <h2>Register</h2>
+    <input type="email" id="registerEmail" placeholder="Email">
+    <input type="password" id="registerPassword" placeholder="Password">
+    <button id="registerButton">Register</button>
   </div>
-  <div id="register" style="display:none;">
-    <h2>Registrarse</h2>
-    <input type="text" id="registerUsername" placeholder="Nombre de usuario">
-    <input type="password" id="registerPassword" placeholder="Contraseña">
-    <button onclick="register()">Registrarse</button>
-    <button onclick="showLoginForm()">Volver</button>
+
+  <!-- Formulario de Inicio de Sesión -->
+  <div>
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button id="loginButton">Login</button>
   </div>
-  <div id="cameraContainer" style="display:none;">
-    <video id="video" autoplay playsinline></video>
-    <button onclick="startVideo()">Activar Cámara</button>
+
+  <!-- Sección de Video -->
+  <div id="videoContainer" style="display: none;">
+    <h2>Your Camera Feed</h2>
+    <video id="video" width="600" height="400" autoplay></video>
   </div>
- 
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    // Importar funciones necesarias desde Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    // Tu configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBEps1MGRev62pQ6Gzm-oGY_gbwLBW_3Yk",
+      authDomain: "reson-ed1b0.firebaseapp.com",
+      projectId: "reson-ed1b0",
+      storageBucket: "reson-ed1b0.appspot.com",
+      messagingSenderId: "945978467577",
+      appId: "1:945978467577:web:6a429bd818509a212cee28",
+      measurementId: "G-7NEMM7R290"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Función para registrar un nuevo usuario
+    document.getElementById('registerButton').addEventListener('click', () => {
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          alert('User registered successfully!');
+          startVideoStream();
+        })
+        .catch((error) => {
+          alert('Error: ' + error.message);
+        });
+    });
+
+    // Función para iniciar sesión
+    document.getElementById('loginButton').addEventListener('click', () => {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          alert('User logged in successfully!');
+          startVideoStream();
+        })
+        .catch((error) => {
+          alert('Error: ' + error.message);
+        });
+    });
+
+    // Función para iniciar el stream de video
+    function startVideoStream() {
+      const videoContainer = document.getElementById('videoContainer');
+      videoContainer.style.display = 'block';
+
+      const video = document.getElementById('video');
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then((stream) => {
+            video.srcObject = stream;
+            video.play();
+          })
+          .catch((error) => {
+            alert('Error accessing camera: ' + error.message);
+          });
+      } else {
+        alert('Your browser does not support camera access.');
+      }
+    }
+  </script>
 </body>
 </html>
