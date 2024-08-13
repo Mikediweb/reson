@@ -1,14 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transmisión de Cámara</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transmitir Video</title>
 </head>
 <body>
-    <h1>Transmisión en Vivo de la Cámara</h1>
-    <video id="video" autoplay playinline></video>
-
-    <script src="camara.js"></script>
+  <video id="video" autoplay playsinline></video>
+  <script>
+    async function startVideo() {
+      const video = document.getElementById('video');
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch (err) {
+        console.error('Error al acceder a la cámara: ', err);
+      }
+    }
+    startVideo();
+  </script>
 </body>
 </html>
