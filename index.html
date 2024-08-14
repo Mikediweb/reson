@@ -6,8 +6,8 @@
   <title>Firebase Auth & Video</title>
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f5f7fa;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
       color: #333;
       display: flex;
       flex-direction: column;
@@ -17,76 +17,89 @@
       margin: 0;
     }
 
+    h1 {
+      color: #2c3e50;
+    }
+
+    h2 {
+      color: #2980b9;
+    }
+
     .container {
-      background-color: #ffffff;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-      max-width: 350px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
       width: 100%;
       margin-bottom: 20px;
-      text-align: center;
     }
 
     input {
       width: calc(100% - 20px);
-      padding: 12px;
+      padding: 10px;
       margin: 10px 0;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
 
     button {
       width: 100%;
-      padding: 12px;
-      background-color: #4CAF50;
+      padding: 10px;
+      background-color: #2980b9;
       color: white;
       border: none;
-      border-radius: 6px;
-      font-size: 16px;
+      border-radius: 4px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s;
     }
 
     button:hover {
-      background-color: #45A049;
+      background-color: #1c6ea4;
     }
 
     #videoContainer {
       display: none;
       flex-direction: column;
       align-items: center;
-      width: 100%;
-      max-width: 800px;
-      margin: 0 auto;
     }
 
-    video {
-      width: 100%;
-      height: auto;
-      border-radius: 10px;
-      background-color: #000;
+    #loading {
+      display: none;
+      margin-top: 20px;
     }
 
     @media (max-width: 480px) {
+      body {
+        padding: 20px;
+      }
+
       video {
-        max-width: 100%;
+        width: 100%;
+        height: auto;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Formulario de Inicio de Sesión con Google -->
-  <div class="container" id="loginRegisterContainer">
+  <h1>Login or Register</h1>
+
+  <!-- Botón para iniciar sesión con Google -->
+  <div class="container">
     <h2>Login with Google</h2>
     <button id="googleLoginButton">Login with Google</button>
+  </div>
 
+  <!-- Formulario de Registro con Correo y Contraseña -->
+  <div class="container">
     <h2>Register</h2>
     <input type="email" id="registerEmail" placeholder="Email" required>
     <input type="password" id="registerPassword" placeholder="Password" required>
     <button id="registerButton">Register</button>
+  </div>
 
+  <!-- Formulario de Inicio de Sesión con Correo y Contraseña -->
+  <div class="container">
     <h2>Login</h2>
     <input type="email" id="loginEmail" placeholder="Email" required>
     <input type="password" id="loginPassword" placeholder="Password" required>
@@ -96,14 +109,22 @@
   <!-- Sección de Video -->
   <div id="videoContainer" class="container">
     <h2>Your Camera Feed</h2>
-    <video id="video" autoplay></video>
+    <video id="video" width="600" height="400" autoplay></video>
+    <button id="logoutButton">Logout</button>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div id="loading">
+    <h2>Loading video...</h2>
   </div>
 
   <!-- Firebase SDKs -->
   <script type="module">
+    // Importar funciones necesarias desde Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
+    // Tu configuración de Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBEps1MGRev62pQ6Gzm-oGY_gbwLBW_3Yk",
       authDomain: "reson-ed1b0.firebaseapp.com",
@@ -114,25 +135,36 @@
       measurementId: "G-7NEMM7R290"
     };
 
+    // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const googleProvider = new GoogleAuthProvider();
 
-    function hideAuthForms() {
-      document.getElementById('loginRegisterContainer').style.display = 'none';
+    // Mostrar el indicador de carga
+    function showLoading() {
+      document.getElementById('loading').style.display = 'block';
     }
 
+    // Ocultar el indicador de carga
+    function hideLoading() {
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    // Función para iniciar sesión con Google
     document.getElementById('googleLoginButton').addEventListener('click', () => {
+      showLoading();
       signInWithPopup(auth, googleProvider)
-        .then(() => {
-          hideAuthForms();
+        .then((result) => {
+          alert('User logged in successfully with Google!');
           startVideoStream();
         })
         .catch((error) => {
+          hideLoading();
           alert('Error: ' + error.message);
         });
     });
 
+    // Función para registrar un nuevo usuario con email y contraseña
     document.getElementById('registerButton').addEventListener('click', () => {
       const email = document.getElementById('registerEmail').value;
       const password = document.getElementById('registerPassword').value;
@@ -142,16 +174,19 @@
         return;
       }
 
+      showLoading();
       createUserWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          hideAuthForms();
+        .then((userCredential) => {
+          alert('User registered successfully!');
           startVideoStream();
         })
         .catch((error) => {
+          hideLoading();
           alert('Error: ' + error.message);
         });
     });
 
+    // Función para iniciar sesión con email y contraseña
     document.getElementById('loginButton').addEventListener('click', () => {
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
@@ -161,17 +196,21 @@
         return;
       }
 
+      showLoading();
       signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          hideAuthForms();
+        .then((userCredential) => {
+          alert('User logged in successfully!');
           startVideoStream();
         })
         .catch((error) => {
+          hideLoading();
           alert('Error: ' + error.message);
         });
     });
 
+    // Función para iniciar el stream de video
     function startVideoStream() {
+      hideLoading();
       const videoContainer = document.getElementById('videoContainer');
       videoContainer.style.display = 'block';
 
@@ -189,7 +228,32 @@
         alert('Your browser does not support camera access.');
       }
     }
+
+    // Función para cerrar sesión
+    document.getElementById('logoutButton').addEventListener('click', () => {
+      signOut(auth)
+        .then(() => {
+          alert('User logged out successfully!');
+          stopVideoStream();
+        })
+        .catch((error) => {
+          alert('Error: ' + error.message);
+        });
+    });
+
+    // Función para detener el stream de video
+    function stopVideoStream() {
+      const video = document.getElementById('video');
+      const stream = video.srcObject;
+      const tracks = stream.getTracks();
+
+      tracks.forEach((track) => track.stop());
+
+      video.srcObject = null;
+      document.getElementById('videoContainer').style.display = 'none';
+    }
   </script>
 </body>
 </html>
+
 
