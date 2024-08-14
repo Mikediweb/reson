@@ -70,6 +70,15 @@
       display: none;
       flex-direction: column;
       align-items: center;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    #video {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     }
 
     #loading {
@@ -81,11 +90,6 @@
       body {
         padding: 20px;
       }
-
-      video {
-        width: 100%;
-        height: auto;
-      }
     }
   </style>
 </head>
@@ -93,7 +97,7 @@
   <h1>Welcome to Reson</h1>
 
   <!-- Formulario de Inicio de Sesión con Google -->
-  <div class="container">
+  <div class="container" id="googleContainer">
     <h2>Login with Google</h2>
     <button id="googleLoginButton">Login with Google</button>
   </div>
@@ -117,9 +121,9 @@
   </div>
 
   <!-- Sección de Video -->
-  <div id="videoContainer" class="container">
+  <div id="videoContainer">
     <h2>Your Camera Feed</h2>
-    <video id="video" width="600" height="400" autoplay></video>
+    <video id="video" autoplay></video>
     <button id="logoutButton">Logout</button>
   </div>
 
@@ -136,13 +140,7 @@
 
     // Tu configuración de Firebase
     const firebaseConfig = {
-      apiKey: "AIzaSyBEps1MGRev62pQ6Gzm-oGY_gbwLBW_3Yk",
-      authDomain: "reson-ed1b0.firebaseapp.com",
-      projectId: "reson-ed1b0",
-      storageBucket: "reson-ed1b0.appspot.com",
-      messagingSenderId: "945978467577",
-      appId: "1:945978467577:web:6a429bd818509a212cee28",
-      measurementId: "G-7NEMM7R290"
+      // Tu configuración de Firebase aquí
     };
 
     // Inicializar Firebase
@@ -233,8 +231,11 @@
     // Función para iniciar el stream de video
     function startVideoStream() {
       hideLoading();
+      document.getElementById('googleContainer').style.display = 'none';
+      document.getElementById('loginContainer').style.display = 'none';
+      document.getElementById('registerContainer').style.display = 'none';
       const videoContainer = document.getElementById('videoContainer');
-      videoContainer.style.display = 'block';
+      videoContainer.style.display = 'flex';
 
       const video = document.getElementById('video');
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -272,6 +273,8 @@
       tracks.forEach((track) => track.stop());
 
       videoContainer.style.display = 'none';
+      document.getElementById('googleContainer').style.display = 'block';
+      document.getElementById('loginContainer').style.display = 'block';
     }
   </script>
 </body>
