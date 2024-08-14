@@ -17,6 +17,11 @@
       margin: 0;
     }
 
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
     .container {
       background-color: #ffffff;
       padding: 25px;
@@ -53,57 +58,83 @@
       background-color: #45A049;
     }
 
+    .auth-link {
+      color: #1e88e5;
+      cursor: pointer;
+      margin-top: 10px;
+      display: block;
+      font-size: 14px;
+    }
+
     #videoContainer {
       display: none;
       flex-direction: column;
       align-items: center;
-      width: 100%;
-      max-width: 800px;
-      margin: 0 auto;
     }
 
-    video {
-      width: 100%;
-      height: auto;
-      border-radius: 10px;
-      background-color: #000;
+    #loading {
+      display: none;
+      margin-top: 20px;
     }
 
     @media (max-width: 480px) {
+      body {
+        padding: 20px;
+      }
+
       video {
-        max-width: 100%;
+        width: 100%;
+        height: auto;
       }
     }
   </style>
 </head>
 <body>
+  <h1>Welcome to Reson</h1>
+
   <!-- Formulario de Inicio de Sesión con Google -->
-  <div class="container" id="loginRegisterContainer">
+  <div class="container">
     <h2>Login with Google</h2>
     <button id="googleLoginButton">Login with Google</button>
+  </div>
 
-    <h2>Register</h2>
-    <input type="email" id="registerEmail" placeholder="Email" required>
-    <input type="password" id="registerPassword" placeholder="Password" required>
-    <button id="registerButton">Register</button>
-
+  <!-- Formulario de Inicio de Sesión con Correo y Contraseña -->
+  <div class="container" id="loginContainer">
     <h2>Login</h2>
     <input type="email" id="loginEmail" placeholder="Email" required>
     <input type="password" id="loginPassword" placeholder="Password" required>
     <button id="loginButton">Login</button>
+    <span class="auth-link" id="showRegister">Create an account</span>
+  </div>
+
+  <!-- Formulario de Registro con Correo y Contraseña -->
+  <div class="container" id="registerContainer" style="display: none;">
+    <h2>Register</h2>
+    <input type="email" id="registerEmail" placeholder="Email" required>
+    <input type="password" id="registerPassword" placeholder="Password" required>
+    <button id="registerButton">Register</button>
+    <span class="auth-link" id="showLogin">Already have an account? Log in</span>
   </div>
 
   <!-- Sección de Video -->
   <div id="videoContainer" class="container">
     <h2>Your Camera Feed</h2>
-    <video id="video" autoplay></video>
+    <video id="video" width="600" height="400" autoplay></video>
+    <button id="logoutButton">Logout</button>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div id="loading">
+    <h2>Loading video...</h2>
   </div>
 
   <!-- Firebase SDKs -->
   <script type="module">
+    // Importar funciones necesarias desde Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
+    // Tu configuración de Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBEps1MGRev62pQ6Gzm-oGY_gbwLBW_3Yk",
       authDomain: "reson-ed1b0.firebaseapp.com",
@@ -114,25 +145,48 @@
       measurementId: "G-7NEMM7R290"
     };
 
+    // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const googleProvider = new GoogleAuthProvider();
 
-    function hideAuthForms() {
-      document.getElementById('loginRegisterContainer').style.display = 'none';
+    // Mostrar el indicador de carga
+    function showLoading() {
+      document.getElementById('loading').style.display = 'block';
     }
 
+    // Ocultar el indicador de carga
+    function hideLoading() {
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    // Mostrar formulario de registro
+    document.getElementById('showRegister').addEventListener('click', () => {
+      document.getElementById('registerContainer').style.display = 'block';
+      document.getElementById('loginContainer').style.display = 'none';
+    });
+
+    // Mostrar formulario de inicio de sesión
+    document.getElementById('showLogin').addEventListener('click', () => {
+      document.getElementById('registerContainer').style.display = 'none';
+      document.getElementById('loginContainer').style.display = 'block';
+    });
+
+    // Función para iniciar sesión con Google
     document.getElementById('googleLoginButton').addEventListener('click', () => {
+      showLoading();
       signInWithPopup(auth, googleProvider)
-        .then(() => {
-          hideAuthForms();
+        .then((result) => {
+          alert('User logged in successfully with Google!');
           startVideoStream();
         })
         .catch((error) => {
+          hideLoading();
           alert('Error: ' + error.message);
         });
     });
 
+    // Función para registrar un nuevo usuario con email y contraseña
     document.getElementById('registerButton').addEventListener('click', () => {
       const email = document.getElementById('registerEmail').value;
       const password = document.getElementById('registerPassword').value;
@@ -142,16 +196,19 @@
         return;
       }
 
+      showLoading();
       createUserWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          hideAuthForms();
+        .then((userCredential) => {
+          alert('User registered successfully!');
           startVideoStream();
         })
         .catch((error) => {
+          hideLoading();
           alert('Error: ' + error.message);
         });
     });
 
+    // Función para iniciar sesión con email y contraseña
     document.getElementById('loginButton').addEventListener('click', () => {
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
@@ -161,17 +218,21 @@
         return;
       }
 
+      showLoading();
       signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          hideAuthForms();
+        .then((userCredential) => {
+          alert('User logged in successfully!');
           startVideoStream();
         })
         .catch((error) => {
+          hideLoading();
           alert('Error: ' + error.message);
         });
     });
 
+    // Función para iniciar el stream de video
     function startVideoStream() {
+      hideLoading();
       const videoContainer = document.getElementById('videoContainer');
       videoContainer.style.display = 'block';
 
@@ -188,6 +249,29 @@
       } else {
         alert('Your browser does not support camera access.');
       }
+    }
+
+    // Función para cerrar sesión
+    document.getElementById('logoutButton').addEventListener('click', () => {
+      signOut(auth)
+        .then(() => {
+          alert('User logged out successfully!');
+          stopVideoStream();
+        })
+        .catch((error) => {
+          alert('Error: ' + error.message);
+        });
+    });
+
+    // Función para detener el stream de video
+    function stopVideoStream() {
+      const video = document.getElementById('video');
+      const stream = video.srcObject;
+      const tracks = stream.getTracks();
+
+      tracks.forEach((track) => track.stop());
+
+      videoContainer.style.display = 'none';
     }
   </script>
 </body>
