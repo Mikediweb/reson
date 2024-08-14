@@ -125,31 +125,27 @@
   </style>
 </head>
 <body>
-  <!-- Formulario de Inicio de Sesión con Google -->
+  <!-- Formulario de Inicio de Sesión -->
   <div class="container" id="loginRegisterContainer">
     <h2>Login with Google</h2>
     <button id="googleLoginButton">Login with Google</button>
 
-    <!-- Formulario de Registro con Correo y Contraseña -->
-    <div id="registerForm">
-      <h2>Register</h2>
-      <input type="email" id="registerEmail" placeholder="Email" required>
-      <input type="password" id="registerPassword" placeholder="Password" required>
-      <button id="registerButton">Register</button>
-      <div class="toggle-link" id="showLoginFormLink">Already have an account? Login here</div>
-    </div>
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email" required>
+    <input type="password" id="loginPassword" placeholder="Password" required>
+    <button id="loginButton">Login</button>
 
-    <!-- Enlace para mostrar el formulario de inicio de sesión -->
+    <!-- Enlace para mostrar el formulario de registro -->
     <div class="toggle-link" id="showRegisterFormLink">Don't have an account? Register here</div>
+  </div>
 
-    <!-- Formulario de Inicio de Sesión con Correo y Contraseña -->
-    <div id="loginForm" class="container">
-      <h2>Login</h2>
-      <input type="email" id="loginEmail" placeholder="Email" required>
-      <input type="password" id="loginPassword" placeholder="Password" required>
-      <button id="loginButton">Login</button>
-      <div class="toggle-link" id="showRegisterFormLinkFromLogin">Need an account? Register here</div>
-    </div>
+  <!-- Formulario de Registro -->
+  <div class="container" id="registerForm">
+    <h2>Register</h2>
+    <input type="email" id="registerEmail" placeholder="Email" required>
+    <input type="password" id="registerPassword" placeholder="Password" required>
+    <button id="registerButton">Register</button>
+    <div class="toggle-link" id="showLoginFormLink">Already have an account? Login here</div>
   </div>
 
   <!-- Sección de Video -->
@@ -184,6 +180,7 @@
 
     function showVideoContainer() {
       document.getElementById('loginRegisterContainer').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'none';
       document.getElementById('videoContainer').style.display = 'flex';
     }
 
@@ -254,25 +251,14 @@
         .catch(handleAuthError);
     });
 
+    document.getElementById('showRegisterFormLink').addEventListener('click', () => {
+      document.getElementById('loginRegisterContainer').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+    });
+
     document.getElementById('showLoginFormLink').addEventListener('click', () => {
       document.getElementById('registerForm').style.display = 'none';
-      document.getElementById('loginForm').style.display = 'block';
-      document.getElementById('showLoginFormLink').style.display = 'none';
-      document.getElementById('showRegisterFormLink').style.display = 'block';
-    });
-
-    document.getElementById('showRegisterFormLink').addEventListener('click', () => {
-      document.getElementById('loginForm').style.display = 'none';
-      document.getElementById('registerForm').style.display = 'block';
-      document.getElementById('showLoginFormLink').style.display = 'block';
-      document.getElementById('showRegisterFormLink').style.display = 'none';
-    });
-
-    document.getElementById('showRegisterFormLinkFromLogin').addEventListener('click', () => {
-      document.getElementById('loginForm').style.display = 'none';
-      document.getElementById('registerForm').style.display = 'block';
-      document.getElementById('showLoginFormLink').style.display = 'block';
-      document.getElementById('showRegisterFormLink').style.display = 'none';
+      document.getElementById('loginRegisterContainer').style.display = 'flex';
     });
 
     document.getElementById('stopCameraButton').addEventListener('click', () => {
@@ -295,3 +281,4 @@
   </script>
 </body>
 </html>
+
