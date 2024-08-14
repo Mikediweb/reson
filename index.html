@@ -69,10 +69,6 @@
       margin-top: 20px;
     }
 
-    #loginForm h2 {
-      margin-top: 0;
-    }
-
     #videoContainer {
       display: none;
       flex-direction: column;
@@ -114,7 +110,7 @@
     <button id="googleLoginButton">Login with Google</button>
 
     <!-- Formulario de Registro con Correo y Contraseña -->
-    <div style="margin-top: 20px;">
+    <div id="registerForm">
       <h2>Register</h2>
       <input type="email" id="registerEmail" placeholder="Email" required>
       <input type="password" id="registerPassword" placeholder="Password" required>
@@ -210,6 +206,7 @@
     });
 
     document.getElementById('showLoginFormLink').addEventListener('click', () => {
+      document.getElementById('registerForm').style.display = 'none';
       document.getElementById('loginForm').style.display = 'block';
       document.getElementById('showLoginFormLink').style.display = 'none';
     });
