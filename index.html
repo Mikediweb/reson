@@ -64,6 +64,15 @@
       align-items: center;
     }
 
+    #loginForm {
+      display: none;
+      margin-top: 20px;
+    }
+
+    #loginForm h2 {
+      margin-top: 0;
+    }
+
     #videoContainer {
       display: none;
       flex-direction: column;
@@ -89,6 +98,13 @@
         height: auto;
       }
     }
+
+    .toggle-link {
+      margin-top: 20px;
+      cursor: pointer;
+      color: #4CAF50;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -105,8 +121,11 @@
       <button id="registerButton">Register</button>
     </div>
 
+    <!-- Enlace para mostrar el formulario de inicio de sesión -->
+    <div class="toggle-link" id="showLoginFormLink">Already have an account? Login here</div>
+
     <!-- Formulario de Inicio de Sesión con Correo y Contraseña -->
-    <div style="margin-top: 20px;">
+    <div id="loginForm" class="container">
       <h2>Login</h2>
       <input type="email" id="loginEmail" placeholder="Email" required>
       <input type="password" id="loginPassword" placeholder="Password" required>
@@ -188,6 +207,11 @@
         .catch((error) => {
           alert('Error: ' + error.message);
         });
+    });
+
+    document.getElementById('showLoginFormLink').addEventListener('click', () => {
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('showLoginFormLink').style.display = 'none';
     });
 
     function startVideoStream() {
