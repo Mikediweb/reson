@@ -64,7 +64,7 @@
       align-items: center;
     }
 
-    #loginForm {
+    #loginForm, #registerForm {
       display: none;
       margin-top: 20px;
     }
@@ -79,6 +79,7 @@
       background-color: #000;
       padding: 20px;
       box-sizing: border-box;
+      position: relative;
     }
 
     video {
@@ -101,6 +102,26 @@
       color: #4CAF50;
       text-decoration: underline;
     }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .controls button {
+      width: auto;
+      flex: 1;
+    }
+
+    #logoutLink {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: #4CAF50;
+      cursor: pointer;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -115,10 +136,11 @@
       <input type="email" id="registerEmail" placeholder="Email" required>
       <input type="password" id="registerPassword" placeholder="Password" required>
       <button id="registerButton">Register</button>
+      <div class="toggle-link" id="showLoginFormLink">Already have an account? Login here</div>
     </div>
 
     <!-- Enlace para mostrar el formulario de inicio de sesión -->
-    <div class="toggle-link" id="showLoginFormLink">Already have an account? Login here</div>
+    <div class="toggle-link" id="showRegisterFormLink">Don't have an account? Register here</div>
 
     <!-- Formulario de Inicio de Sesión con Correo y Contraseña -->
     <div id="loginForm" class="container">
@@ -126,19 +148,25 @@
       <input type="email" id="loginEmail" placeholder="Email" required>
       <input type="password" id="loginPassword" placeholder="Password" required>
       <button id="loginButton">Login</button>
+      <div class="toggle-link" id="showRegisterFormLinkFromLogin">Need an account? Register here</div>
     </div>
   </div>
 
   <!-- Sección de Video -->
   <div id="videoContainer" class="container">
+    <span id="logoutLink">Logout</span>
     <h2>Your Camera Feed</h2>
     <video id="video" autoplay></video>
+    <div class="controls">
+      <button id="stopCameraButton">Stop Camera</button>
+      <button id="startCameraButton">Start Camera</button>
+    </div>
   </div>
 
   <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBEps1MGRev62pQ6Gzm-oGY_gbwLBW_3Yk",
@@ -159,14 +187,39 @@
       document.getElementById('videoContainer').style.display = 'flex';
     }
 
+    function handleAuthError(error) {
+      alert('Error: ' + error.message);
+    }
+
+    function toggleCamera(enable) {
+      const video = document.getElementById('video');
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        if (enable) {
+          navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+              video.srcObject = stream;
+              video.play();
+            })
+            .catch(handleAuthError);
+        } else {
+          let stream = video.srcObject;
+          if (stream) {
+            let tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+            video.srcObject = null;
+          }
+        }
+      } else {
+        alert('Your browser does not support camera access.');
+      }
+    }
+
     document.getElementById('googleLoginButton').addEventListener('click', () => {
       signInWithPopup(auth, googleProvider)
         .then(() => {
           showVideoContainer();
         })
-        .catch((error) => {
-          alert('Error: ' + error.message);
-        });
+        .catch(handleAuthError);
     });
 
     document.getElementById('registerButton').addEventListener('click', () => {
@@ -182,9 +235,7 @@
         .then(() => {
           showVideoContainer();
         })
-        .catch((error) => {
-          alert('Error: ' + error.message);
-        });
+        .catch(handleAuthError);
     });
 
     document.getElementById('loginButton').addEventListener('click', () => {
@@ -200,37 +251,46 @@
         .then(() => {
           showVideoContainer();
         })
-        .catch((error) => {
-          alert('Error: ' + error.message);
-        });
+        .catch(handleAuthError);
     });
 
     document.getElementById('showLoginFormLink').addEventListener('click', () => {
       document.getElementById('registerForm').style.display = 'none';
       document.getElementById('loginForm').style.display = 'block';
       document.getElementById('showLoginFormLink').style.display = 'none';
+      document.getElementById('showRegisterFormLink').style.display = 'block';
     });
 
-    function startVideoStream() {
-      const video = document.getElementById('video');
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
-          .then((stream) => {
-            video.srcObject = stream;
-            video.play();
-          })
-          .catch((error) => {
-            alert('Error accessing camera: ' + error.message);
-          });
-      } else {
-        alert('Your browser does not support camera access.');
-      }
-    }
+    document.getElementById('showRegisterFormLink').addEventListener('click', () => {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('showLoginFormLink').style.display = 'block';
+      document.getElementById('showRegisterFormLink').style.display = 'none';
+    });
 
-    document.getElementById('videoContainer').addEventListener('DOMSubtreeModified', () => {
-      if (document.getElementById('videoContainer').style.display === 'flex') {
-        startVideoStream();
-      }
+    document.getElementById('showRegisterFormLinkFromLogin').addEventListener('click', () => {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('showLoginFormLink').style.display = 'block';
+      document.getElementById('showRegisterFormLink').style.display = 'none';
+    });
+
+    document.getElementById('stopCameraButton').addEventListener('click', () => {
+      toggleCamera(false);
+    });
+
+    document.getElementById('startCameraButton').addEventListener('click', () => {
+      toggleCamera(true);
+    });
+
+    document.getElementById('logoutLink').addEventListener('click', () => {
+      signOut(auth)
+        .then(() => {
+          document.getElementById('videoContainer').style.display = 'none';
+          document.getElementById('loginRegisterContainer').style.display = 'flex';
+          toggleCamera(false);
+        })
+        .catch(handleAuthError);
     });
   </script>
 </body>
