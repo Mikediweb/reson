@@ -64,7 +64,7 @@
       align-items: center;
     }
 
-    #loginForm, #registerForm {
+    #loginForm, #registerForm, #googleLoginForm {
       display: none;
       margin-top: 20px;
     }
@@ -125,22 +125,24 @@
   </style>
 </head>
 <body>
-  <!-- Formulario de Inicio de Sesión con Google -->
+  <!-- Contenedor Principal -->
   <div class="container" id="loginRegisterContainer">
-    <h2>Login with Google</h2>
-    <button id="googleLoginButton">Login with Google</button>
+    <!-- Formulario de Inicio de Sesión con Google -->
+    <div id="googleLoginForm" class="container">
+      <h2>Login with Google</h2>
+      <button id="googleLoginButton">Login with Google</button>
+      <div class="toggle-link" id="showLoginFormLink">Or log in with email</div>
+      <div class="toggle-link" id="showRegisterFormLinkFromGoogle">Don't have an account? Register here</div>
+    </div>
 
     <!-- Formulario de Registro con Correo y Contraseña -->
-    <div id="registerForm">
+    <div id="registerForm" class="container">
       <h2>Register</h2>
       <input type="email" id="registerEmail" placeholder="Email" required>
       <input type="password" id="registerPassword" placeholder="Password" required>
       <button id="registerButton">Register</button>
-      <div class="toggle-link" id="showLoginFormLink">Already have an account? Login here</div>
+      <div class="toggle-link" id="showLoginFormLinkFromRegister">Already have an account? Login here</div>
     </div>
-
-    <!-- Enlace para mostrar el formulario de inicio de sesión -->
-    <div class="toggle-link" id="showRegisterFormLink">Don't have an account? Register here</div>
 
     <!-- Formulario de Inicio de Sesión con Correo y Contraseña -->
     <div id="loginForm" class="container">
@@ -149,6 +151,7 @@
       <input type="password" id="loginPassword" placeholder="Password" required>
       <button id="loginButton">Login</button>
       <div class="toggle-link" id="showRegisterFormLinkFromLogin">Need an account? Register here</div>
+      <div class="toggle-link" id="showGoogleLoginFormLink">Or log in with Google</div>
     </div>
   </div>
 
@@ -255,24 +258,33 @@
     });
 
     document.getElementById('showLoginFormLink').addEventListener('click', () => {
+      document.getElementById('googleLoginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('showLoginFormLink').style.display = 'none';
+      document.getElementById('showGoogleLoginFormLink').style.display = 'block';
+      document.getElementById('showRegisterFormLinkFromLogin').style.display = 'block';
+    });
+
+    document.getElementById('showRegisterFormLinkFromGoogle').addEventListener('click', () => {
+      document.getElementById('googleLoginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('showLoginFormLink').style.display = 'block';
+      document.getElementById('showGoogleLoginFormLink').style.display = 'none';
+    });
+
+    document.getElementById('showLoginFormLinkFromRegister').addEventListener('click', () => {
       document.getElementById('registerForm').style.display = 'none';
       document.getElementById('loginForm').style.display = 'block';
       document.getElementById('showLoginFormLink').style.display = 'none';
       document.getElementById('showRegisterFormLink').style.display = 'block';
     });
 
-    document.getElementById('showRegisterFormLink').addEventListener('click', () => {
+    document.getElementById('showGoogleLoginFormLink').addEventListener('click', () => {
       document.getElementById('loginForm').style.display = 'none';
-      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('googleLoginForm').style.display = 'block';
       document.getElementById('showLoginFormLink').style.display = 'block';
-      document.getElementById('showRegisterFormLink').style.display = 'none';
-    });
-
-    document.getElementById('showRegisterFormLinkFromLogin').addEventListener('click', () => {
-      document.getElementById('loginForm').style.display = 'none';
-      document.getElementById('registerForm').style.display = 'block';
-      document.getElementById('showLoginFormLink').style.display = 'block';
-      document.getElementById('showRegisterFormLink').style.display = 'none';
+      document.getElementById('showGoogleLoginFormLink').style.display = 'none';
     });
 
     document.getElementById('stopCameraButton').addEventListener('click', () => {
